@@ -6,9 +6,7 @@ import pickle
 import pandas as pd
 
 
-def read_data(filename, categorical):
-    df = pd.read_parquet(filename)
-    
+def prepare_data(df, categorical):
     df['duration'] = df.tpep_dropoff_datetime - df.tpep_pickup_datetime
     df['duration'] = df.duration.dt.total_seconds() / 60
 
@@ -19,8 +17,15 @@ def read_data(filename, categorical):
     return df
 
 
-def main(year, month):
-    input_file = f'https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_{year:04d}-{month:02d}.parquet'
+def read_data(filename, categorical):
+    df = pd.read_parquet(filename)
+    return prepare_data(df, categorical)
+
+
+def main(year, month, input_file=None):
+    if input_file is None:
+        input_file = f'https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_{year:04d}-{month:02d}.parquet'
+    
     output_file = f'taxi_type=yellow_year={year:04d}_month={month:02d}.parquet'
 
     with open('model.bin', 'rb') as f_in:
